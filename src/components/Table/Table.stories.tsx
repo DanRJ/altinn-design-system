@@ -120,9 +120,9 @@ const rows = [
 ];
 
 const Template: ComponentStory<typeof Table> = (args) => {
-  const [selected, setSelected] = useState('');
+  const [selected, setSelected] = useState({});
   const [selectedSort, setSelectedSort] = useState({
-    idCell: 0,
+    sortedColumn: '',
     sortDirection: SortDirection.NotActive,
   });
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -131,21 +131,24 @@ const Template: ComponentStory<typeof Table> = (args) => {
   const handleChange = ({ selectedValue }: ChangeProps) => {
     setSelected(selectedValue);
   };
-  const handleSortChange = ({ idCell, previousSortDirection }: SortProps) => {
+  const handleSortChange = ({
+    sortedColumn,
+    previousSortDirection,
+  }: SortProps) => {
     if (previousSortDirection === SortDirection.Ascending) {
       setSelectedSort({
-        idCell: idCell,
+        sortedColumn: sortedColumn,
         sortDirection: SortDirection.Descending,
       });
     } else if (previousSortDirection === SortDirection.Descending) {
       setSelectedSort({
-        idCell: idCell,
+        sortedColumn: sortedColumn,
         sortDirection: SortDirection.Ascending,
       });
     } else {
       setSelectedSort({
-        idCell: idCell,
-        sortDirection: SortDirection.Ascending,
+        sortedColumn: sortedColumn,
+        sortDirection: SortDirection.Descending,
       });
     }
   };
@@ -155,6 +158,10 @@ const Template: ComponentStory<typeof Table> = (args) => {
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const handleChangeInCurrentPage = (newPage: number) => {
+    setPage(newPage);
   };
 
   return (
@@ -167,9 +174,9 @@ const Template: ComponentStory<typeof Table> = (args) => {
         <TableRow>
           <TableCell
             onChange={handleSortChange}
-            id={1}
+            sortKey={'Søknadsnr.'}
             sortDirecton={
-              selectedSort.idCell === 1
+              selectedSort.sortedColumn === 'Søknadsnr.'
                 ? selectedSort.sortDirection
                 : SortDirection.NotActive
             }
@@ -177,10 +184,10 @@ const Template: ComponentStory<typeof Table> = (args) => {
             Søknadsnr.
           </TableCell>
           <TableCell
-            id={2}
+            sortKey={'Produkt'}
             onChange={handleSortChange}
             sortDirecton={
-              selectedSort.idCell === 2
+              selectedSort.sortedColumn === 'Produkt'
                 ? selectedSort.sortDirection
                 : SortDirection.NotActive
             }
@@ -197,7 +204,7 @@ const Template: ComponentStory<typeof Table> = (args) => {
           .map((row) => (
             <TableRow
               key={row.applicationNr}
-              value={row.applicationNr}
+              rowData={{ applicationNr: row.applicationNr }}
             >
               <TableCell>{row.applicationNr}</TableCell>
               <TableCell>{row.product}</TableCell>
@@ -221,7 +228,7 @@ const Template: ComponentStory<typeof Table> = (args) => {
               rowsPerPage={rowsPerPage}
               onRowsPerPageChange={handleChangeRowsPerPage}
               currentPage={page}
-              setCurrentPage={setPage}
+              setCurrentPage={handleChangeInCurrentPage}
               rowsPerPageText='Rader per side'
               pageDescriptionText='av'
             />

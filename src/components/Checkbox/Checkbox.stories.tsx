@@ -25,7 +25,12 @@ export default {
     ]),
     docs: {
       page: () => (
-        <StoryPage description='Checkbox for boolean or multiple choice values in forms.' />
+        <StoryPage
+          description={`Checkbox for boolean or multiple choice values in forms.
+                        The component relies on being controlled, which means that it expects the consumer to set its \`checked\` state.
+                        That is why the demonstration in Storybook does not change when clicking.
+                        The \`onChange\` property must be set to trigger this change.`}
+        />
       ),
     },
   },
@@ -68,7 +73,7 @@ Error.parameters = {
   docs: {
     description: {
       story:
-        'This checkbox is supposed to be used when there is an user input error related to it.',
+        'This checkbox is supposed to be used when there is a user input error related to it.',
     },
   },
 };

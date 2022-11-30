@@ -4,6 +4,8 @@ import cn from 'classnames';
 import { Checkbox, FieldSet } from '@/components';
 import type { CheckboxProps } from '@/components/Checkbox/Checkbox';
 import { FieldSetSize } from '@/components/FieldSet/FieldSet';
+import { areItemsUnique, arraysEqual } from '@/utils/arrayUtils';
+import { usePrevious, useUpdate } from '@/hooks';
 
 import classes from './CheckboxGroup.module.css';
 
@@ -58,8 +60,7 @@ export const CheckboxGroup = ({
   onChange,
   variant = CheckboxGroupVariant.Vertical,
 }: CheckboxGroupProps) => {
-  const allNames = items.map((item) => item.name);
-  if (allNames.length !== new Set(allNames).size) {
+  if (!areItemsUnique(items.map((item) => item.name))) {
     throw Error('Each name in the checkbox group must be unique.');
   }
 
@@ -70,17 +71,17 @@ export const CheckboxGroup = ({
     [items],
   );
 
-  useEffect(
-    () => (onChange && !disabled ? onChange(checkedNames) : undefined),
-    [checkedNames, onChange, disabled],
-  );
+  const prevCheckedNames = usePrevious(checkedNames);
+
+  useUpdate(() => {
+    onChange &&
+      !disabled &&
+      !arraysEqual(prevCheckedNames, checkedNames) &&
+      onChange(checkedNames);
+  }, [checkedNames, onChange, disabled]);
 
   return (
     <FieldSet
-      className={cn(
-        classes['checkbox-group'],
-        compact && classes['checkbox-group--compact'],
-      )}
       description={description}
       disabled={disabled}
       error={error}
@@ -89,8 +90,9 @@ export const CheckboxGroup = ({
     >
       <div
         className={cn(
-          classes['checkbox-group__list'],
-          classes[`checkbox-group__list--${variant}`],
+          classes['checkbox-group'],
+          classes[`checkbox-group--${variant}`],
+          compact && classes['checkbox-group--compact'],
         )}
       >
         {items.map((item) => (
